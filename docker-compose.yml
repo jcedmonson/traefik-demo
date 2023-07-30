@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  proxy:
+    image: traefik:latest
+    container_name: proxy
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    networks:
+      - traefik
+    volumes:
+      - /Users/jacob/sources/traefik-demo/traefik:/etc/traefik
+      - /Users/jacob/sources/traefik-demo/certs:/certs
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  tomcat:
+    image: tomcatlocal:1.0
+    container_name: tomcat
+    build:
+      dockerfile: ./tomcat/Dockerfile
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.api.rule=PathPrefix(`/api`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+    networks:
+      - traefik
+    volumes:
+      - /Users/jacob/sources/traefik-demo/tomcat/config/server.xml:/usr/local/tomcat/server.xml
+      - /Users/jacob/sources/traefik-demo/tomcat/demo:/usr/local/tomcat/webapps/api/demo
+      - /Users/jacob/sources/traefik-demo/certs:/usr/local/tomcat/certs
+
+networks:
+  traefik:
+    driver: bridge

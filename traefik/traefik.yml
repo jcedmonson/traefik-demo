@@ -1,0 +1,27 @@
+api:
+  dashboard: true
+  insecure: true
+  debug: true
+
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /certs/public.pem
+        keyFile: /certs/private.pem
+
+entryPoints:
+  web:
+    address: ":80"
+
+  websecure:
+    address: ":443"
+
+serversTransport:
+  rootCAs:
+    - /certs/private.pem
+
+providers:
+  docker:
+    exposedByDefault: false
+    swarmMode: false
